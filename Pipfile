@@ -7,24 +7,30 @@ verify_ssl = true
 
 [packages]
 flask = "*"
-sqlalchemy = "*"
+sqlalchemy = "==1.4.46"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-swagger = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
-mysql-connector-python = "*"
 flask-cors = "*"
 gunicorn = "*"
-mysqlclient = "*"
+cloudinary = "*"
 flask-admin = "*"
+typing-extensions = "*"
+flask-jwt-extended = "*"
+spotipy = "*"
 
 [requires]
 python_version = "3.10"
 
 [scripts]
-start="flask run -p 3000 -h 0.0.0.0"
+start="flask run -p 3001 -h 0.0.0.0"
 init="flask db init"
 migrate="flask db migrate"
+local="heroku local"
 upgrade="flask db upgrade"
-deploy="echo 'Please follow this 3 steps to deploy: https://start.4geeksacademy.com/deploy/render' "
+downgrade="flask db downgrade"
+insert-test-data="flask insert-test-data"
+reset_db="bash ./docs/assets/reset_migrations.bash"
+deploy="echo 'Please follow this 3 steps to deploy: https://github.com/4GeeksAcademy/flask-rest-hello/blob/master/README.md#deploy-your-website-to-heroku' "
