@@ -12,6 +12,8 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 from api.models import db, Users, Soundscapes, Mixes, Tutorials, Binaural
 from datetime import datetime
+from flask_mail import Message, Mail
+from app import Mail
 
 api = Blueprint('api', __name__)
 CORS(api)  # Allow CORS requests to this API.  ¡'09876ui
@@ -562,7 +564,33 @@ def spotify_callback():
         print(f"Unexpected error: {str(e)}")
         return jsonify({'error': 'An unexpected error occurred'}), 500
 
+@api.route('/send-email', methods=['POST'])
+@jwt_required()
+def send_contact_email():
+    print(request.json)
+    current_user = get_jwt_identity()
+    user_id = current_user['user_id']
+    user = Users.query.get(user_id)
+    
+    if not user:
+        return jsonify({"error": "User not found"}), 404
 
+    data = request.json
+    subject = data.get('subject')
+    message = data.get('message')
+
+    if not subject or not message:
+        return jsonify({"error": "Subject and message are required"}), 400
+
+    msg = Message(subject,
+                  recipients=['info@binaurapp.com'],
+                  body=f"From: {user.first_name} {user.last_name} <{user.email}>\n\n{message}")
+
+    try:
+        mail.send(msg)
+        return jsonify({"message": "Email sent successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to send email: {str(e)}"}), 500
 # SoundCloud Backend
 # @api.route('/soundcloud/callback', methods=['POST'])
 # def soundcloud_callback():
