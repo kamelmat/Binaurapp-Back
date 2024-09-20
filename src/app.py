@@ -18,6 +18,17 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 # from spotipy.cache_handler import FlaskSessionCacheHandler
 # from google.cloud import storage
+from flask_mail import Mail
+from flask_cors import CORS
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Carga las variables de entorno desde .env
+
+app = Flask(__name__)
+
+# Solo aplica CORS a esta ruta específica
+CORS(app, resources={r"/api/*": {"origins": "*"}}) 
 
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -41,7 +52,29 @@ app.register_blueprint(api, url_prefix='/api')  # Add all endpoints form the API
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")  # Change this!
 jwt = JWTManager(app)
 
+# Mail configuration final
+"""
+app.config['MAIL_SERVER'] = 'localhost'  # Or the specific mail server hostname if different
+app.config['MAIL_PORT'] = 25  # Standard SMTP port, adjust if your server uses a different port
+app.config['MAIL_USE_TLS'] = True # Set to True if your server requires TLS
+app.config['MAIL_USE_SSL'] = True  # Set to True if your server requires SSL
+app.config['MAIL_USERNAME'] = None  # Usually not needed for local mail servers
+app.config['MAIL_PASSWORD'] = None  # Usually not needed for local mail servers
+app.config['MAIL_DEFAULT_SENDER'] = 'info@binaurapp.com'
 
+mail = Mail(app)
+"""
+
+# Mail configuration production
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'localhost')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 25))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'False').lower() == 'true'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'info@binaurapp.com')
+
+mail = Mail(app)
 """ # Config Spotify
 cache_handler = FlaskSessionCacheHandler(session)
 sp_oauth = SpotifyOAuth(
